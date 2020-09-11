@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/lds-spinner.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Task Informer</title>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="" onclick="reload()">TaskInformer</a>
+</nav>
+
+<script>
+    function reload() {
+        window.location.reload();
+    }
+</script>
+
+<div class="container">
+
+    <br>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <label for="taskId">Input task id</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <input type="text" class="form-control" id="taskId" placeholder="task id..">
+        </div>
+        <div class="col-sm">
+            <button type="button" id="button" onclick="submitTask()" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+    <div id="inputAlert" hidden>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="alert alert-danger" id="alert" role="alert">
+                    Task id not exists or incorrect input!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="spinner" id="mainSpinner" hidden>
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+
+    <div id="linkBlock" hidden>
+        <div>
+            <div class="fa fa-link"></div>
+            <a id="lAlt" href=""></a>
+        </div>
+        <div>
+            <div class="fa fa-link"></div>
+            <a id="lWeb" href=""></a>
+        </div>
+        <div>
+            <div class="fa fa-link"></div>
+            <a id="lCont" href=""></a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="table-responsive">
+        <table class="table" id="tableTask"></table>
+    </div>
+
+    <div id="accordion" hidden>
+        <div class="card">
+
+            <div class="card-header" id="headingDesc">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseDesc"
+                            aria-expanded="false" aria-controls="collapseDesc">
+                        Package description
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseDesc" class="collapse" aria-labelledby="headingDesc" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless" id="descTable"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne">
+                        What depends src
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+
+                    <div class="spinner" id="wdsSpinner" hidden>
+                        <div class="bounce1"></div>
+                        <div class="bounce2"></div>
+                        <div class="bounce3"></div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table" id="whatDepsTable"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-header" id="headingTwo">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                            aria-expanded="false" aria-controls="collapseTwo">
+                        Mis conflict packages
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+
+                    <div class="spinner" id="mcSpinner" hidden>
+                        <div class="bounce1"></div>
+                        <div class="bounce2"></div>
+                        <div class="bounce3"></div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <p id="mcInfo"></p>
+                        <table class="table" id="misConfTable"></table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <br>
+</div>
+
+<script src="https://kit.fontawesome.com/yourcode.js"></script>
+<script src="../js/jquery-3.5.1.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../controller.js"></script>
+</body>
+</html>
