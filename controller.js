@@ -8,55 +8,95 @@ function sendRequest(url, success, async = true) {
             success(result);
         },
         error: function (error) {
-            document.getElementById("alert").innerHTML = "Server error";
-            document.getElementById("inputAlert").hidden = false;
-            document.getElementById("linkBlock").hidden = true;
+            setElMessage("alert", "Server error");
+            visibleEls([
+                ["inputAlert", true],
+                ["linkBlock", false],
+                ["infoBlock", false],
+                ["taskContent", false],
+                ["accordion", false]
+            ]);
         },
         async: async
     });
 }
 
+function getElem(element) {
+    return document.getElementById(element);
+}
+
+function setVisible(element, visible) {
+    let type = false;
+    if (visible === false) {
+        type = true;
+    }
+    getElem(element).hidden = type;
+}
+
+function visibleEls(elements) {
+    for (let i in elements) {
+        let value = elements[i];
+        if (typeof value[Symbol.iterator] === "function" && value.length === 2) {
+            if (typeof value[1] === "boolean") {
+                setVisible(value[0], value[1]);
+            }
+        }
+    }
+}
+
+function setElMessage(element, message, add = false) {
+    element = getElem(element);
+    if (add === false) {
+        element.innerHTML = message;
+    } else {
+        element.innerHTML += message;
+    }
+}
+
 function submitTask() {
-    document.getElementById("linkBlock").hidden = true;
-    document.getElementById("accordion").hidden = true;
+    visibleEls([
+        ["inputAlert", false],
+        ["linkBlock", false],
+        ["infoBlock", false],
+        ["taskContent", false],
+        ["accordion", false]
+    ]);
 
-    let inpAlert = document.getElementById("inputAlert");
-    inpAlert.hidden = true;
-
-    let taskId = document.getElementById("taskId").value;
+    let taskId = getElem("taskId").value;
 
     if (taskId != parseInt(taskId, 10)) {
-        inpAlert.hidden = false;
-        document.getElementById("taskId").value = "";
+        setVisible("inputAlert", true);
+        getElem("taskId").value = "";
         return
     }
 
-    const lAlt = document.getElementById("lAlt");
+    const lAlt = getElem("lAlt");
 
     lAlt.innerHTML = "Task " + taskId + " on git.altlinux.org";
     lAlt.href = "http://git.altlinux.org/tasks/" + taskId;
 
-    let mainSpinner = document.getElementById("mainSpinner");
-    mainSpinner.hidden = false;
+    setVisible("mainSpinner", true);
 
     let taskInfoUrl = appHost + "task_info?task=" + taskId;
     sendRequest(taskInfoUrl, showTaskInfo, false);
 
-    if (inpAlert.hidden === false) {
-        mainSpinner.hidden = true;
+    if (getElem("inputAlert").hidden === false) {
+        setVisible("mainSpinner", false);
         return;
     }
 
-    mainSpinner.hidden = true;
+    visibleEls([
+        ["mainSpinner", false],
+        ["wdInfo", false],
+        ["whatDepsTableMain", false],
+        ["wdsSpinner", true],
+        ["mcInfo", false],
+        ["misConfTableMain", false],
+        ["mcSpinner", true]
+    ]);
 
-    $("#tableTask").hide();
-    $("#whatDepsTable tr").remove();
-    document.getElementById("mcInfo").hidden = true;
-    document.getElementById("wdsSpinner").hidden = false;
-    document.getElementById("mcSpinner").hidden = false;
-
-    const lWeb = document.getElementById("lWeb");
-    const lCont = document.getElementById("lCont");
+    const lWeb = getElem("lWeb");
+    const lCont = getElem("lCont");
 
     lWeb.innerHTML = "Task " + taskId + " build repo";
     lWeb.href = "http://git.altlinux.org/tasks/" + taskId + "/build/repo/";
@@ -64,7 +104,7 @@ function submitTask() {
     lCont.innerHTML = "Task " + taskId + " on webery.altlinux.org";
     lCont.href = "http://webery.altlinux.org/task/" + taskId;
 
-    document.getElementById("linkBlock").hidden = false;
+    setVisible("linkBlock", true);
 
     let whatDepsUrl = appHost + "what_depends_src?task=" + taskId;
     sendRequest(whatDepsUrl, showWhatDeps);
@@ -72,7 +112,7 @@ function submitTask() {
     let misConfUrl = appHost + "misconflict_packages?task=" + taskId;
     sendRequest(misConfUrl, showMisConf);
 
-    document.getElementById("taskId").value = "";
+    getElem("taskId").value = "";
 }
 
 function getColsName(list) {
@@ -113,11 +153,18 @@ function createTable(list) {
 
 function showTaskInfo(response) {
     if (response.includes("Error")) {
-        document.getElementById("inputAlert").hidden = false;
+        setVisible("inputAlert", true);
         return;
     }
 
     response = JSON.parse(response);
+
+    let user = JSON.stringify(response[0]["user"]).replace(/"/g, "");
+    let branch = JSON.stringify(response[0]["branch"]).replace(/"/g, "");
+
+    setElMessage("infoBlock", "<h5>" + "<span class='badge badge-secondary'>" + user + "</span>" +
+        " " + "<span class='badge badge-info'>" + branch + "</span>" + "</h5>")
+    setVisible("infoBlock", true);
 
     let list = [];
     let desc = [];
@@ -132,7 +179,7 @@ function showTaskInfo(response) {
         descJson["description"] = response[i]["description"];
         desc.push(descJson);
 
-        let removeFields = ["description", "task_content", "branch", "user"]
+        let removeFields = ["description", "task_content", "branch", "user"];
         for (let field in removeFields) {
             delete response[i][removeFields[field]];
         }
@@ -145,42 +192,49 @@ function showTaskInfo(response) {
         list.push(response[i]);
     }
 
-    let descEl = document.getElementById("descTable");
+    let descEl = getElem("descTable");
     descEl.innerHTML = "";
     descEl.appendChild(createTable(desc));
 
-    let el = document.getElementById("tableTask");
+    let el = getElem("taskContent");
     el.innerHTML = "";
     el.appendChild(createTable(list));
 
-    $("#tableTask").show();
-
-    document.getElementById("accordion").hidden = false;
+    setVisible("taskContent", true);
+    setVisible("accordion", true);
 }
 
 function showWhatDeps(response) {
-    response = JSON.parse(response);
+    if (response.length > 2) {
+        response = JSON.parse(response);
 
-    let list = [];
-    for (let i in response) {
-        let removeFields = ["epoch", "serial_", "branch", "cycle", "requires"];
-        for (let field in removeFields) {
-            delete response[i][removeFields[field]];
+        let list = [];
+        for (let i in response) {
+            response[i]["version"] = response[i]["version"] + "-" + response[i]["release"];
+
+            let removeFields = ["release", "epoch", "serial_", "branch", "cycle", "requires"];
+            for (let field in removeFields) {
+                delete response[i][removeFields[field]];
+            }
+
+            response[i]["archs"] = response[i]["archs"].join(" ");
+            response[i]["acl"] = response[i]["acl"].join(" ");
+
+            list.push(response[i]);
         }
 
-        response[i]["archs"] = response[i]["archs"].join(" ");
-        response[i]["acl"] = response[i]["acl"].join(" ");
+        let table = createTable(list);
 
-        list.push(response[i]);
+        let el = getElem("whatDepsTable");
+        el.innerHTML = "";
+        el.appendChild(table);
+        setVisible("whatDepsTableMain", true);
+    } else {
+        setElMessage("wdInfo", "No information about dependencies...");
+        setVisible("wdInfo", true);
     }
 
-    let table = createTable(list);
-
-    let el = document.getElementById("whatDepsTable");
-    el.innerHTML = "";
-    el.appendChild(table);
-
-    document.getElementById("wdsSpinner").hidden = true;
+    setVisible("wdsSpinner", false);
 }
 
 function showMisConf(response) {
@@ -200,13 +254,14 @@ function showMisConf(response) {
 
         let table = createTable(list);
 
-        let el = document.getElementById("misConfTable");
+        let el = getElem("misConfTable");
         el.innerHTML = "";
         el.appendChild(table);
+        setVisible("misConfTableMain", true);
     } else {
-        document.getElementById("mcInfo").hidden = false;
-        document.getElementById("mcInfo").innerHTML = "No information about conflicts...";
+        setElMessage("mcInfo", "No information about conflicts...");
+        setVisible("mcInfo", true);
     }
 
-    document.getElementById("mcSpinner").hidden = true;
+    setVisible("mcSpinner", false);
 }

@@ -75,9 +75,11 @@
 
     <br>
 
-    <div class="table-responsive">
-        <table class="table" id="tableTask"></table>
-    </div>
+    <div id="infoBlock" hidden></div>
+
+    <br>
+
+    <table class="table" id="taskContent" hidden></table>
 
     <div id="accordion" hidden>
         <div class="card">
@@ -115,7 +117,8 @@
                         <div class="bounce3"></div>
                     </div>
 
-                    <div class="table-responsive">
+                    <p id="wdInfo" hidden></p>
+                    <div class="table-responsive" id="whatDepsTableMain" hidden>
                         <table class="table" id="whatDepsTable"></table>
                     </div>
                 </div>
@@ -138,8 +141,8 @@
                         <div class="bounce3"></div>
                     </div>
 
-                    <div class="table-responsive">
-                        <p id="mcInfo"></p>
+                    <p id="mcInfo" hidden></p>
+                    <div class="table-responsive" id="misConfTableMain" hidden>
                         <table class="table" id="misConfTable"></table>
                     </div>
                 </div>
