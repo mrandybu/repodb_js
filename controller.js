@@ -1,9 +1,11 @@
 let appHost = "http://127.0.0.1:5000/";
+let taskId = "";
 
 function sendRequest(url, success, async = true) {
     $.ajax({
         url: url,
         type: "GET",
+        async: async,
         success: function (result) {
             success(result);
         },
@@ -17,7 +19,6 @@ function sendRequest(url, success, async = true) {
                 ["accordion", false]
             ]);
         },
-        async: async
     });
 }
 
@@ -62,7 +63,7 @@ function submitTask() {
         ["accordion", false]
     ]);
 
-    let taskId = getElem("taskId").value;
+    taskId = getElem("taskId").value;
 
     if (taskId != parseInt(taskId, 10)) {
         setVisible("inputAlert", true);
@@ -161,36 +162,86 @@ function showTaskInfo(response) {
 
     let user = JSON.stringify(response[0]["user"]).replace(/"/g, "");
     let branch = JSON.stringify(response[0]["branch"]).replace(/"/g, "");
+    let task_status = JSON.stringify(response[0]["status"]).replace(/"/g, "");
 
-    setElMessage("infoBlock", "<h5>" + "<span class='badge badge-secondary'>" + user + "</span>" +
-        " " + "<span class='badge badge-info'>" + branch + "</span>" + "</h5>")
+    setElMessage("infoBlock",
+        "<i><h6>" +
+        "Task " + "<b>#" + taskId + "</b> " +
+        "status <b>" + task_status + "</b></h6></i>");
+
+    setElMessage("infoBlock",
+        "<h5>" +
+        "<span class='badge badge-secondary'>" + user + "</span>" + " " +
+        "<span class='badge badge-info'>" + branch + "</span>" +
+        "</h5>", true);
+
     setVisible("infoBlock", true);
 
     let list = [];
     let desc = [];
     for (let i in response) {
+        let _item = response[i];
+
         let archs = [];
-        for (let j in response[i]["task_content"]) {
-            archs.push(j);
+        for (let j in _item["task_content"]) {
+            if (j !== "noarch") {
+                let arch_link = "http://git.altlinux.org/tasks/" + taskId + "/build/" + _item["subtask"] + "/" + j;
+                archs.push("<a target='_blank' href='" + arch_link + "'>" + j + "</a>");
+            } else {
+                archs.push(j);
+            }
         }
 
         let descJson = {};
-        descJson["name"] = response[i]["src_pkg"];
-        descJson["description"] = response[i]["description"];
+        let paoLink = "https://packages.altlinux.org/ru/sisyphus/srpms/" + _item["src_pkg"];
+        descJson["name"] = "<a target='_blank' href='" + paoLink + "'>" + _item["src_pkg"] + "</a>";
+        descJson["description"] = _item["description"];
         desc.push(descJson);
 
-        let removeFields = ["description", "task_content", "branch", "user"];
+        let removeFields = ["description", "task_content", "branch", "user", "status"];
         for (let field in removeFields) {
-            delete response[i][removeFields[field]];
+            delete _item[removeFields[field]];
         }
 
-        response[i]["archs"] = archs.join(", ");
-        response[i]["version"] = response[i]["version"] + "-" + response[i]["release"];
+        let subtask_link = "http://git.altlinux.org/tasks/" + taskId + "/gears/" + _item["subtask"] + "/git";
 
-        delete response[i]["release"];
+        _item["src_pkg"] = "<a target='_blank' href='" + subtask_link + "'>" + _item["src_pkg"] + "</a>";
+        _item["archs"] = archs.join(", ");
+        _item["version"] = _item["version"] + "-" + _item["release"];
 
-        list.push(response[i]);
+        ["approve", "disapprove"].forEach(elem => {
+            let msg = "";
+            if (_item[elem][0]) {
+                msg = _item[elem][0];
+            }
+            if (_item[elem][1]) {
+                msg += "<br>" + "<b>" + _item[elem][1] + "</b> ";
+            }
+            if (_item[elem][2]) {
+                msg += "<i>" + _item[elem][2] + "</i>";
+            }
+
+            _item[elem] = msg;
+        });
+
+        setElMessage("beehiveCheckLink", "Check beehive result #" + taskId);
+        setElMessage("beehiveCheckMsg", "<pre>" + _item["beehive_check"] + "</pre>");
+
+        delete _item["release"];
+        delete _item["beehive_check"];
+
+        list.push(_item);
     }
+
+    desc.sort(function (a, b) {
+        if (a.name > b.name) {
+            return 1;
+        }
+        if (a.name < b.name) {
+            return -1;
+        }
+        return 0;
+    });
 
     let descEl = getElem("descTable");
     descEl.innerHTML = "";
@@ -212,16 +263,19 @@ function showWhatDeps(response) {
         for (let i in response) {
             response[i]["version"] = response[i]["version"] + "-" + response[i]["release"];
 
-            let removeFields = ["release", "epoch", "serial_", "branch", "cycle", "requires"];
+            let removeFields = ["release", "epoch", "serial_", "branch", "cycle", "requires", "archs"];
             for (let field in removeFields) {
                 delete response[i][removeFields[field]];
             }
 
-            response[i]["archs"] = response[i]["archs"].join(" ");
             response[i]["acl"] = response[i]["acl"].join(" ");
 
             list.push(response[i]);
         }
+
+
+        setElMessage("resultRebuildLink", "RESULT #" + taskId);
+        getElem("resultRebuildLink").href = "http://bb.ipa.basealt.ru/RESULT/" + taskId;
 
         let table = createTable(list);
 
