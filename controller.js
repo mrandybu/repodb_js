@@ -160,19 +160,28 @@ function showTaskInfo(response) {
 
     response = JSON.parse(response);
 
-    let user = JSON.stringify(response[0]["user"]).replace(/"/g, "");
-    let branch = JSON.stringify(response[0]["branch"]).replace(/"/g, "");
-    let task_status = JSON.stringify(response[0]["status"]).replace(/"/g, "");
+    let taskMeta = {};
+    ["user", "branch", "status", "task_msg"].forEach(elem => {
+        taskMeta[elem] = JSON.stringify(response[0][elem]).replace(/"/g, "");
+    });
+
+    if (!taskMeta["task_msg"]) {
+        taskMeta["task_msg"] = "no task message";
+    }
 
     setElMessage("infoBlock",
         "<i><h6>" +
         "Task " + "<b>#" + taskId + "</b> " +
-        "status <b>" + task_status + "</b></h6></i>");
+        "status <b>" + taskMeta["status"] + "</b></h6></i>");
+
+    setElMessage("infoBlock",
+        "<i><h6>Message: <b>" + taskMeta["task_msg"] + "</b></h6></i>",
+        true);
 
     setElMessage("infoBlock",
         "<h5>" +
-        "<span class='badge badge-secondary'>" + user + "</span>" + " " +
-        "<span class='badge badge-info'>" + branch + "</span>" +
+        "<span class='badge badge-secondary'>" + taskMeta["user"] + "</span>" + " " +
+        "<span class='badge badge-info'>" + taskMeta["branch"] + "</span>" +
         "</h5>", true);
 
     setVisible("infoBlock", true);
@@ -198,7 +207,7 @@ function showTaskInfo(response) {
         descJson["description"] = _item["description"];
         desc.push(descJson);
 
-        let removeFields = ["description", "task_content", "branch", "user", "status"];
+        let removeFields = ["description", "task_content", "branch", "user", "status", "task_msg"];
         for (let field in removeFields) {
             delete _item[removeFields[field]];
         }
@@ -223,6 +232,10 @@ function showTaskInfo(response) {
 
             _item[elem] = msg;
         });
+
+        if (!_item["beehive_check"]) {
+            _item["beehive_check"] = "<i>no beehive check result...</i>";
+        }
 
         setElMessage("beehiveCheckLink", "Check beehive result #" + taskId);
         setElMessage("beehiveCheckMsg", "<pre>" + _item["beehive_check"] + "</pre>");
@@ -284,7 +297,7 @@ function showWhatDeps(response) {
         el.appendChild(table);
         setVisible("whatDepsTableMain", true);
     } else {
-        setElMessage("wdInfo", "No information about dependencies...");
+        setElMessage("wdInfo", "<i>No information about dependencies...</i>");
         setVisible("wdInfo", true);
     }
 
@@ -313,7 +326,7 @@ function showMisConf(response) {
         el.appendChild(table);
         setVisible("misConfTableMain", true);
     } else {
-        setElMessage("mcInfo", "No information about conflicts...");
+        setElMessage("mcInfo", "<i>No information about conflicts...</i>");
         setVisible("mcInfo", true);
     }
 

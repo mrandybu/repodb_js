@@ -6,15 +6,19 @@
 
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/lds-spinner.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="shortcut icon" href="../logo.png" type="image/png">
 
     <title>Task Informer</title>
 </head>
 <body>
 
 <nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="" onclick="reload()">TaskInformer</a>
+    <a class="navbar-brand" href="" onclick="reload()">
+        <img src="../logo.png" width="31" height="30" class="d-inline-block align-top" alt="">
+        TaskInformer
+    </a>
 </nav>
 
 <script>
@@ -24,9 +28,7 @@
 </script>
 
 <div class="container">
-
     <br>
-
     <div class="row">
         <div class="col-sm-4">
             <label for="taskId">Input task id</label>
@@ -37,7 +39,7 @@
             <input type="text" class="form-control" id="taskId" placeholder="task id..">
         </div>
         <div class="col-sm">
-            <button type="button" id="button" onclick="submitTask()" class="btn btn-primary">Submit</button>
+            <button type="button" id="button" onclick="submitTask()" class="btn btn-secondary">Get Task!</button>
         </div>
     </div>
     <div id="inputAlert" hidden>
@@ -116,17 +118,14 @@
                     </div>
 
                     <p id="wdInfo" hidden></p>
-
                     <div class="table-responsive" id="whatDepsTableMain" hidden>
-
                         <div>
-                            <a id="beehiveCheckLink" data-toggle="collapse" href="#beehiveCheckCollapse" role="button" aria-expanded="false" aria-controls="beehiveCheckCollapse"></a>
+                            <a id="beehiveCheckLink" data-toggle="collapse" href="#beehiveCheckCollapse" role="button"
+                               aria-expanded="false" aria-controls="beehiveCheckCollapse"></a>
                             <div class="collapse" id="beehiveCheckCollapse">
                                 <div class="card card-body" id="beehiveCheckMsg"></div>
                             </div>
                         </div>
-
-
 
                         <div>
                             <div class="fa fa-link"></div>
@@ -161,7 +160,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     <br>
