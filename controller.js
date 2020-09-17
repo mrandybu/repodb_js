@@ -9,12 +9,14 @@ if (searchParams.get("task")) {
 
 readConfig("../config.json");
 
+
 function readConfig(file) {
     let rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
     rawFile.open("GET", file, false);
     rawFile.onreadystatechange = function () {
-        if (rawFile.readyState === XMLHttpRequest.DONE && rawFile.status === 200) {
+        if (rawFile.readyState === XMLHttpRequest.DONE &&
+            rawFile.status === 200) {
             let content = rawFile.responseText;
             if (content) {
                 let data = JSON.parse(content);
@@ -65,7 +67,8 @@ function setVisible(element, visible) {
 function visibleEls(elements) {
     for (let i in elements) {
         let value = elements[i];
-        if (typeof value[Symbol.iterator] === "function" && value.length === 2) {
+        if (typeof value[Symbol.iterator] === "function" &&
+            value.length === 2) {
             if (typeof value[1] === "boolean") {
                 setVisible(value[0], value[1]);
             }
@@ -210,7 +213,8 @@ function showTaskInfo(response) {
 
     setElMessage("infoBlock",
         "<h5>" +
-        "<span class='badge badge-secondary'>" + taskMeta["user"] + "</span>" + " " +
+        "<span class='badge badge-secondary'>" + taskMeta["user"] + "</span>" +
+        " " +
         "<span class='badge badge-info'>" + taskMeta["branch"] + "</span>" +
         "</h5>", true);
 
@@ -224,27 +228,34 @@ function showTaskInfo(response) {
         let archs = [];
         for (let j in _item["task_content"]) {
             if (j !== "noarch") {
-                let arch_link = "http://git.altlinux.org/tasks/" + taskId + "/build/" + _item["subtask"] + "/" + j;
-                archs.push("<a target='_blank' href='" + arch_link + "'>" + j + "</a>");
+                let arch_link = "http://git.altlinux.org/tasks/" + taskId +
+                    "/build/" + _item["subtask"] + "/" + j;
+                archs.push(
+                    "<a target='_blank' href='" + arch_link + "'>" + j + "</a>"
+                );
             } else {
                 archs.push(j);
             }
         }
 
         let descJson = {};
-        let paoLink = "https://packages.altlinux.org/ru/sisyphus/srpms/" + _item["src_pkg"];
-        descJson["name"] = "<a target='_blank' href='" + paoLink + "'>" + _item["src_pkg"] + "</a>";
+        descJson["name"] =
+            "<a target='_blank' href='" +
+            "https://packages.altlinux.org/ru/sisyphus/srpms/" +
+            _item["src_pkg"] + "'>" + _item["src_pkg"] + "</a>";
         descJson["description"] = _item["description"];
         desc.push(descJson);
 
-        let removeFields = ["description", "task_content", "branch", "user", "status", "task_msg"];
-        for (let field in removeFields) {
-            delete _item[removeFields[field]];
-        }
+        ["description", "task_content", "branch", "user", "status", "task_msg"]
+            .forEach(elem => {
+                delete _item[elem];
+            });
 
-        let subtask_link = "http://git.altlinux.org/tasks/" + taskId + "/gears/" + _item["subtask"] + "/git";
+        let subtask_link = "http://git.altlinux.org/tasks/" + taskId +
+            "/gears/" + _item["subtask"] + "/git";
 
-        _item["src_pkg"] = "<a target='_blank' href='" + subtask_link + "'>" + _item["src_pkg"] + "</a>";
+        _item["src_pkg"] = "<a target='_blank' href='" + subtask_link + "'>" +
+            _item["src_pkg"] + "</a>";
         _item["archs"] = archs.join(", ");
         _item["version"] = _item["version"] + "-" + _item["release"];
 
@@ -268,7 +279,9 @@ function showTaskInfo(response) {
         }
 
         setElMessage("beehiveCheckLink", "Check beehive result #" + taskId);
-        setElMessage("beehiveCheckMsg", "<pre>" + _item["beehive_check"] + "</pre>");
+        setElMessage(
+            "beehiveCheckMsg", "<pre>" + _item["beehive_check"] + "</pre>"
+        );
 
         delete _item["release"];
         delete _item["beehive_check"];
@@ -304,21 +317,22 @@ function showWhatDeps(response) {
 
         let list = [];
         for (let i in response) {
-            response[i]["version"] = response[i]["version"] + "-" + response[i]["release"];
+            response[i]["version"] =
+                response[i]["version"] + "-" + response[i]["release"];
 
-            let removeFields = ["release", "epoch", "serial_", "branch", "cycle", "requires", "archs"];
-            for (let field in removeFields) {
-                delete response[i][removeFields[field]];
-            }
+            ["release", "epoch", "serial_", "branch", "cycle", "requires",
+                "archs"].forEach(elem => {
+                delete response[i][elem];
+            });
 
             response[i]["acl"] = response[i]["acl"].join(" ");
 
             list.push(response[i]);
         }
 
-
         setElMessage("resultRebuildLink", "RESULT #" + taskId);
-        getElem("resultRebuildLink").href = "http://bb.ipa.basealt.ru/RESULT/" + taskId;
+        getElem("resultRebuildLink").href =
+            "http://bb.ipa.basealt.ru/RESULT/" + taskId;
 
         let table = createTable(list);
 
@@ -340,8 +354,10 @@ function showMisConf(response) {
 
         let list = [];
         for (let i in response) {
-            response[i]["version"] = response[i]["version"] + "-" + response[i]["release"];
-            response[i]["files_with_conflict"] = response[i]["files_with_conflict"].join(", ");
+            response[i]["version"] =
+                response[i]["version"] + "-" + response[i]["release"];
+            response[i]["files_with_conflict"] =
+                response[i]["files_with_conflict"].join(", ");
 
             delete response[i]["release"];
             delete response[i]["epoch"];
