@@ -1,0 +1,5 @@
+{
+  "appHost": "127.0.0.1",
+  "appPort": 5000,
+  "httpType": "http"
+}

@@ -1,6 +1,34 @@
 let appHost = "http://127.0.0.1:5000/";
 let taskId = "";
 
+let searchParams = new URLSearchParams(location.search);
+if (searchParams.get("task")) {
+    taskId = searchParams.get("task");
+    submitTask();
+}
+
+readConfig("../config.json");
+
+function readConfig(file) {
+    let rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === XMLHttpRequest.DONE && rawFile.status === 200) {
+            let content = rawFile.responseText;
+            if (content) {
+                let data = JSON.parse(content);
+                appHost = data["httpType"] + "://" + data["appHost"];
+                if (data["appPort"]) {
+                    appHost += ":" + data["appPort"];
+                }
+                appHost += "/";
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
 function sendRequest(url, success, async = true) {
     $.ajax({
         url: url,
@@ -63,7 +91,9 @@ function submitTask() {
         ["accordion", false]
     ]);
 
-    taskId = getElem("taskId").value;
+    if (!taskId) {
+        taskId = getElem("taskId").value;
+    }
 
     if (taskId != parseInt(taskId, 10)) {
         setVisible("inputAlert", true);
