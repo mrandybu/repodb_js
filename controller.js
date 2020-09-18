@@ -224,6 +224,12 @@ function showTaskInfo(response) {
 
     setVisible("infoBlock", true);
 
+    function createLink(arch, subtask) {
+        let arch_link = "http://git.altlinux.org/tasks/" + taskId +
+            "/build/" + subtask + "/" + arch;
+        return "<a target='_blank' href='" + arch_link + "'>" + arch + "</a>";
+    }
+
     let list = [];
     let desc = [];
     for (let i in response) {
@@ -232,13 +238,11 @@ function showTaskInfo(response) {
         let archs = [];
         for (let j in _item["task_content"]) {
             if (j !== "noarch") {
-                let arch_link = "http://git.altlinux.org/tasks/" + taskId +
-                    "/build/" + _item["subtask"] + "/" + j;
-                archs.push(
-                    "<a target='_blank' href='" + arch_link + "'>" + j + "</a>"
-                );
+                archs.push(createLink(j, _item["subtask"]));
             } else {
-                archs.push(j);
+                archs.push(
+                    "noarch(" + createLink("x86_64", _item["subtask"]) + ")"
+                );
             }
         }
 
