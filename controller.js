@@ -190,7 +190,7 @@ function createTable(list) {
 }
 
 function showTaskInfo(response) {
-    if (response.includes("Error")) {
+    if (response.includes("Non-existent task number!")) {
         setVisible("inputAlert", true);
         return;
     }
