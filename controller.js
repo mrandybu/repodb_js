@@ -254,16 +254,11 @@ function showTaskInfo(response) {
         descJson["description"] = _item["description"];
         desc.push(descJson);
 
-        ["description", "task_content", "branch", "user", "status", "task_msg"]
-            .forEach(elem => {
-                delete _item[elem];
-            });
-
         let subtask_link = "http://git.altlinux.org/tasks/" + taskId +
             "/gears/" + _item["subtask"] + "/git";
 
-        _item["src_pkg"] = "<a target='_blank' href='" + subtask_link + "'>" +
-            _item["src_pkg"] + "</a>";
+        _item["subtask"] = "<a target='_blank' href='" + subtask_link + "'>" +
+            _item["subtask"] + "</a>";
         _item["archs"] = archs.join(", ");
         _item["version"] = _item["version"] + "-" + _item["release"];
 
@@ -282,6 +277,8 @@ function showTaskInfo(response) {
             _item[elem] = msg;
         });
 
+        _item["approve/disapprove"] = _item["approve"] + _item["disapprove"];
+
         if (!_item["beehive_check"]) {
             _item["beehive_check"] = "<i>no beehive check result...</i>";
         }
@@ -291,10 +288,13 @@ function showTaskInfo(response) {
             "beehiveCheckMsg", "<pre>" + _item["beehive_check"] + "</pre>"
         );
 
-        delete _item["release"];
-        delete _item["beehive_check"];
+        let _item_new = {};
+        ["subtask", "src_pkg", "version", "archs", "approve/disapprove"]
+            .forEach(elem => {
+                _item_new[elem] = _item[elem];
+            });
 
-        list.push(_item);
+        list.push(_item_new);
     }
 
     desc.sort(function (a, b) {
