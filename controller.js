@@ -1,13 +1,13 @@
 let appHost = "http://127.0.0.1:5000/";
 let taskId = "";
 
+readConfig("../config.json");
+
 let searchParams = new URLSearchParams(location.search);
 if (searchParams.get("task")) {
     taskId = searchParams.get("task");
     submitTask();
 }
-
-readConfig("../config.json");
 
 
 function readConfig(file) {
@@ -101,7 +101,7 @@ function submitTask() {
     if (taskId != parseInt(taskId, 10)) {
         setVisible("inputAlert", true);
         getElem("taskId").value = "";
-        return
+        return;
     }
 
     const lAlt = getElem("lAlt");
