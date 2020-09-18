@@ -1,11 +1,12 @@
 let appHost = "http://127.0.0.1:5000/";
 let taskId = "";
+let taskIdGet = "";
 
 readConfig("../config.json");
 
 let searchParams = new URLSearchParams(location.search);
 if (searchParams.get("task")) {
-    taskId = searchParams.get("task");
+    taskIdGet = searchParams.get("task");
     submitTask();
 }
 
@@ -94,8 +95,11 @@ function submitTask() {
         ["accordion", false]
     ]);
 
+    taskId = getElem("taskId").value;
     if (!taskId) {
-        taskId = getElem("taskId").value;
+        taskId = taskIdGet;
+    } else {
+        window.history.pushState("1", "Title", "?task=" + taskId);
     }
 
     if (taskId != parseInt(taskId, 10)) {
