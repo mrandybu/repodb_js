@@ -189,6 +189,13 @@ function createTable(list) {
     return table;
 }
 
+function httpGet(theUrl) {
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", theUrl, false);
+    xmlHttp.send(null);
+    return xmlHttp;
+}
+
 function showTaskInfo(response) {
     if (response.includes("Non-existent task number!")) {
         setVisible("inputAlert", true);
@@ -198,9 +205,13 @@ function showTaskInfo(response) {
     response = JSON.parse(response);
 
     let taskMeta = {};
-    ["user", "branch", "status", "task_msg"].forEach(elem => {
-        taskMeta[elem] = JSON.stringify(response[0][elem]).replace(/"/g, "");
-    });
+    ["user", "branch", "status", "task_msg", "current_rebuild"]
+        .forEach(elem => {
+            taskMeta[elem] = JSON.stringify(response[0][elem])
+                .replace(/"/g, "");
+        });
+
+    let rebuilds = response[0]["all_rebuilds"];
 
     if (!taskMeta["task_msg"]) {
         taskMeta["task_msg"] = "no task message";
@@ -209,7 +220,7 @@ function showTaskInfo(response) {
     setElMessage("infoBlock",
         "<i><h6>" +
         "Task " + "<b>#" + taskId + "</b> " +
-        "status <b>" + taskMeta["status"] + "</b></h6></i>");
+        "status <b id='taskStatus'>" + taskMeta["status"] + "</b></h6></i>");
 
     setElMessage("infoBlock",
         "<i><h6>Message: <b>" + taskMeta["task_msg"] + "</b></h6></i>",
@@ -222,7 +233,76 @@ function showTaskInfo(response) {
         "<span class='badge badge-info'>" + taskMeta["branch"] + "</span>" +
         "</h5>", true);
 
+    let beehiveCheck = response[0]["beehive_check"];
+    if (!beehiveCheck) {
+        beehiveCheck = "<i>no beehive check result...</i>";
+    }
+
+    setElMessage("beehiveCheckLink", "Check beehive result #" + taskId);
+    setElMessage("beehiveCheckMsg", "<pre>" + beehiveCheck + "</pre>");
+
+    let rebuildsLength = rebuilds.length;
+    for (let i = 0; i < rebuildsLength; i++) {
+        let tryIter = null;
+        if (i === rebuildsLength - 1) {
+            tryIter = response;
+        } else {
+            let url = appHost + "task_info?task=" + taskId + "&rebuild=" +
+                rebuilds[i];
+            let responseRebuild = httpGet(url);
+            if (responseRebuild.status === 200) {
+                tryIter = JSON.parse(responseRebuild.responseText);
+            }
+        }
+
+        if (tryIter) {
+            let taskRebuild = _showTaskInfo(tryIter);
+            let linkEl = document.createElement("a");
+
+            linkEl.appendChild(document.createTextNode(rebuilds[i]));
+            linkEl.href = "#";
+            linkEl.id = rebuilds[i];
+            linkEl.onclick = function () {
+                updateTaskInfo(...taskRebuild, rebuilds, rebuilds[i]);
+            };
+            getElem("infoBlock").appendChild(linkEl);
+            getElem("infoBlock").appendChild(document.createTextNode(" "));
+
+            if (rebuilds[i] === taskMeta["current_rebuild"]) {
+                updateTaskInfo(...taskRebuild, rebuilds, rebuilds[i]);
+            }
+        }
+    }
+
     setVisible("infoBlock", true);
+    setVisible("taskContent", true);
+    setVisible("accordion", true);
+}
+
+function updateTaskInfo(taskTable, descTable, taskStatus, rebuilds,
+                        currentRebuild) {
+    rebuilds.forEach(elem => {
+        let el = getElem(elem);
+        if (elem === currentRebuild) {
+            el.innerHTML = "<span class='badge badge-dark'>" + elem + "</span>"
+        } else {
+            el.innerHTML = "<span class='badge badge-light'>" + elem + "</span>";
+        }
+    });
+
+    setElMessage('taskStatus', "<b>" + taskStatus + "</b>");
+
+    let tiTables = {'descTable': taskTable, 'taskContent': descTable};
+
+    for (let i in tiTables) {
+        let el = getElem(i);
+        el.innerHTML = "";
+        el.appendChild(tiTables[i]);
+    }
+}
+
+function _showTaskInfo(response) {
+    let taskStatus = response[0]["status"];
 
     function createLink(arch, subtask) {
         let arch_link = "http://git.altlinux.org/tasks/" + taskId +
@@ -279,15 +359,6 @@ function showTaskInfo(response) {
 
         _item["approve/disapprove"] = _item["approve"] + _item["disapprove"];
 
-        if (!_item["beehive_check"]) {
-            _item["beehive_check"] = "<i>no beehive check result...</i>";
-        }
-
-        setElMessage("beehiveCheckLink", "Check beehive result #" + taskId);
-        setElMessage(
-            "beehiveCheckMsg", "<pre>" + _item["beehive_check"] + "</pre>"
-        );
-
         let _item_new = {};
         ["subtask", "src_pkg", "version", "archs", "approve/disapprove"]
             .forEach(elem => {
@@ -307,16 +378,7 @@ function showTaskInfo(response) {
         return 0;
     });
 
-    let descEl = getElem("descTable");
-    descEl.innerHTML = "";
-    descEl.appendChild(createTable(desc));
-
-    let el = getElem("taskContent");
-    el.innerHTML = "";
-    el.appendChild(createTable(list));
-
-    setVisible("taskContent", true);
-    setVisible("accordion", true);
+    return [createTable(desc), createTable(list), taskStatus];
 }
 
 function showWhatDeps(response) {
