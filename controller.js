@@ -105,6 +105,7 @@ function submitTask() {
     if (taskId != parseInt(taskId, 10)) {
         setVisible("inputAlert", true);
         getElem("taskId").value = "";
+        taskIdGet = "";
         return;
     }
 
@@ -199,6 +200,7 @@ function httpGet(theUrl) {
 function showTaskInfo(response) {
     if (response.includes("Non-existent task number!")) {
         setVisible("inputAlert", true);
+        taskIdGet = "";
         return;
     }
 
