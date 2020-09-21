@@ -87,6 +87,11 @@ function setElMessage(element, message, add = false) {
 }
 
 function submitTask() {
+    if (getElem("infoBlock").hidden === false &&
+        getElem("taskId").value === "") {
+        return;
+    }
+
     visibleEls([
         ["inputAlert", false],
         ["linkBlock", false],
