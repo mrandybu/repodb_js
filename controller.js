@@ -263,7 +263,8 @@ function showTaskInfo(response) {
         }
 
         if (tryIter) {
-            let taskRebuild = _showTaskInfo(tryIter);
+            let last = rebuilds[i] === taskMeta["current_rebuild"];
+            let taskRebuild = _showTaskInfo(tryIter, last);
             let linkEl = document.createElement("a");
 
             linkEl.appendChild(document.createTextNode(rebuilds[i]));
@@ -308,7 +309,7 @@ function updateTaskInfo(taskTable, descTable, taskStatus, rebuilds,
     }
 }
 
-function _showTaskInfo(response) {
+function _showTaskInfo(response, last) {
     let taskStatus = response[0]["status"];
 
     function createLink(arch, subtask) {
@@ -348,23 +349,26 @@ function _showTaskInfo(response) {
             _item["subtask"] + "</a>";
         _item["archs"] = archs.join(", ");
         _item["version"] = _item["version"] + "-" + _item["release"];
+        _item["approve/disapprove"] = "";
 
-        ["approve", "disapprove"].forEach(elem => {
-            let msg = "";
-            if (_item[elem][0]) {
-                msg = _item[elem][0];
-            }
-            if (_item[elem][1]) {
-                msg += "<br>" + "<b>" + _item[elem][1] + "</b> ";
-            }
-            if (_item[elem][2]) {
-                msg += "<i>" + _item[elem][2] + "</i>";
-            }
+        if (last) {
+            ["approve", "disapprove"].forEach(elem => {
+                let msg = "";
+                if (_item[elem][0]) {
+                    msg = _item[elem][0];
+                }
+                if (_item[elem][1]) {
+                    msg += "<br>" + "<b>" + _item[elem][1] + "</b> ";
+                }
+                if (_item[elem][2]) {
+                    msg += "<i>" + _item[elem][2] + "</i>";
+                }
 
-            _item[elem] = msg;
-        });
+                _item[elem] = msg;
+            });
 
-        _item["approve/disapprove"] = _item["approve"] + _item["disapprove"];
+            _item["approve/disapprove"] = _item["approve"] + _item["disapprove"];
+        }
 
         let _item_new = {};
         ["subtask", "src_pkg", "version", "archs", "approve/disapprove"]
