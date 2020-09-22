@@ -298,6 +298,18 @@ function updateTaskInfo(taskTable, descTable, taskStatus, rebuilds,
         }
     });
 
+    let statusBadge = {
+        "EPERM": "warning",
+        "DONE": "success",
+        "FAILED": "danger",
+        "TESTED": "info",
+        "OTHER": "light"
+    }
+
+    taskStatus = "<b class='badge badge-" +
+        (statusBadge[taskStatus] || statusBadge["OTHER"]) + "'><b>" +
+        taskStatus + "</b></span>";
+
     setElMessage('taskStatus', "<b>" + taskStatus + "</b>");
 
     let tiTables = {'descTable': taskTable, 'taskContent': descTable};
