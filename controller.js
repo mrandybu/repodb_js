@@ -287,7 +287,7 @@ function showTaskInfo(response) {
     setVisible("accordion", true);
 }
 
-function updateTaskInfo(taskTable, descTable, taskStatus, rebuilds,
+function updateTaskInfo(descTable, taskInfoTable, taskStatus, rebuilds,
                         currentRebuild) {
     rebuilds.forEach(elem => {
         let el = getElem(elem);
@@ -312,7 +312,7 @@ function updateTaskInfo(taskTable, descTable, taskStatus, rebuilds,
 
     setElMessage('taskStatus', "<b>" + taskStatus + "</b>");
 
-    let tiTables = {'descTable': taskTable, 'taskContent': descTable};
+    let tiTables = {'descTable': descTable, 'taskContent': taskInfoTable};
 
     for (let i in tiTables) {
         let el = getElem(i);
