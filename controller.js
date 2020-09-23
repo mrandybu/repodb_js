@@ -292,7 +292,7 @@ function updateTaskInfo(descTable, taskInfoTable, taskStatus, rebuilds,
     rebuilds.forEach(elem => {
         let el = getElem(elem);
         if (elem === currentRebuild) {
-            el.innerHTML = "<span class='badge badge-dark'>" + elem + "</span>"
+            el.innerHTML = "<span class='badge badge-dark'>" + elem + "</span>";
         } else {
             el.innerHTML = "<span class='badge badge-light'>" + elem + "</span>";
         }
@@ -310,9 +310,9 @@ function updateTaskInfo(descTable, taskInfoTable, taskStatus, rebuilds,
         (statusBadge[taskStatus] || statusBadge["OTHER"]) + "'><b>" +
         taskStatus + "</b></span>";
 
-    setElMessage('taskStatus', "<b>" + taskStatus + "</b>");
+    setElMessage("taskStatus", "<b>" + taskStatus + "</b>");
 
-    let tiTables = {'descTable': descTable, 'taskContent': taskInfoTable};
+    let tiTables = {"descTable": descTable, "taskContent": taskInfoTable};
 
     for (let i in tiTables) {
         let el = getElem(i);
