@@ -22,3 +22,11 @@ body {
 .outer {
     text-align: center;
 }
+
+.fontColorMinus {
+    color: red;
+}
+
+.fontColorPlus {
+    color: green;
+}

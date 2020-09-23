@@ -129,6 +129,9 @@ function submitTask() {
         return;
     }
 
+    let taskDiff = appHost + "task_diff?task=" + taskId;
+    sendRequest(taskDiff, showTaskDiff, false);
+
     visibleEls([
         ["mainSpinner", false],
         ["wdInfo", false],
@@ -200,6 +203,41 @@ function httpGet(theUrl) {
     xmlHttp.open("GET", theUrl, false);
     xmlHttp.send(null);
     return xmlHttp;
+}
+
+function showTaskDiff(response) {
+    response = JSON.parse(response);
+
+    let list = [];
+    for (let pkg in response) {
+        for (let type in response[pkg]) {
+            for (let arch in response[pkg][type]) {
+                let value = response[pkg][type][arch];
+
+                let colorValues = [];
+                value.forEach(elem => {
+                    if (elem.startsWith("-")) {
+                        colorValues.push("<i class='fontColorMinus'>" + elem +
+                            "</i>");
+                    } else if (elem.startsWith("+")) {
+                        colorValues.push("<i class='fontColorPlus'>" + elem +
+                            "</i>");
+                    }
+                });
+
+                let listDict = {};
+                listDict["name"] = pkg;
+                listDict["type"] = type;
+                listDict["arch"] = arch;
+                listDict["diff"] = "<pre>" + colorValues.join("\n") + "</pre>";
+                list.push(listDict);
+            }
+        }
+    }
+
+    let el = getElem("tableDiff");
+    el.innerHTML = "";
+    el.appendChild(createTable(list));
 }
 
 function showTaskInfo(response) {
