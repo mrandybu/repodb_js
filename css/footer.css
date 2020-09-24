@@ -30,3 +30,7 @@ body {
 .fontColorPlus {
     color: green;
 }
+
+.fontColorWarning {
+    color: #ffc107;
+}

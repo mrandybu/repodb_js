@@ -46,6 +46,7 @@ function sendRequest(url, success, async = true) {
                 ["inputAlert", true],
                 ["linkBlock", false],
                 ["infoBlock", false],
+                ["taskDiff", false],
                 ["taskContent", false],
                 ["accordion", false]
             ]);
@@ -96,6 +97,7 @@ function submitTask() {
         ["inputAlert", false],
         ["linkBlock", false],
         ["infoBlock", false],
+        ["taskDiff", false],
         ["taskContent", false],
         ["accordion", false]
     ]);
@@ -129,11 +131,9 @@ function submitTask() {
         return;
     }
 
-    let taskDiff = appHost + "task_diff?task=" + taskId;
-    sendRequest(taskDiff, showTaskDiff, false);
-
     visibleEls([
         ["mainSpinner", false],
+        ["tdInfo", false],
         ["wdInfo", false],
         ["whatDepsTableMain", false],
         ["wdsSpinner", true],
@@ -141,6 +141,9 @@ function submitTask() {
         ["misConfTableMain", false],
         ["mcSpinner", true]
     ]);
+
+    let taskDiff = appHost + "task_diff?task=" + taskId;
+    sendRequest(taskDiff, showTaskDiff, false);
 
     const lWeb = getElem("lWeb");
     const lCont = getElem("lCont");
@@ -206,38 +209,56 @@ function httpGet(theUrl) {
 }
 
 function showTaskDiff(response) {
-    response = JSON.parse(response);
+    if (response.length > 2) {
+        response = JSON.parse(response);
 
-    let list = [];
-    for (let pkg in response) {
-        for (let type in response[pkg]) {
-            for (let arch in response[pkg][type]) {
-                let value = response[pkg][type][arch];
+        let list = [];
+        let obsolete = false;
+        for (let pkg in response) {
+            for (let type in response[pkg]) {
+                for (let arch in response[pkg][type]) {
+                    let value = response[pkg][type][arch];
 
-                let colorValues = [];
-                value.forEach(elem => {
-                    if (elem.startsWith("-")) {
-                        colorValues.push("<i class='fontColorMinus'>" + elem +
-                            "</i>");
-                    } else if (elem.startsWith("+")) {
-                        colorValues.push("<i class='fontColorPlus'>" + elem +
-                            "</i>");
+                    let colorValues = [];
+                    value.forEach(elem => {
+                        if (elem.startsWith("-")) {
+                            colorValues.push("<i class='fontColorMinus'>" + elem +
+                                "</i>");
+                        } else if (elem.startsWith("+")) {
+                            colorValues.push("<i class='fontColorPlus'>" + elem +
+                                "</i>");
+                        }
+                    });
+
+                    let listDict = {};
+                    listDict["name"] = pkg;
+                    listDict["type"] = type;
+                    listDict["arch"] = arch;
+                    listDict["diff"] = "<pre>" + colorValues.join("\n") + "</pre>";
+                    list.push(listDict);
+
+                    if (type === "obsolete") {
+                        obsolete = true;
                     }
-                });
-
-                let listDict = {};
-                listDict["name"] = pkg;
-                listDict["type"] = type;
-                listDict["arch"] = arch;
-                listDict["diff"] = "<pre>" + colorValues.join("\n") + "</pre>";
-                list.push(listDict);
+                }
             }
         }
+
+        if (obsolete) {
+            setElMessage("warn",
+                "Warning! In package from task change obsolete!<br>");
+        }
+
+        let el = getElem("tableDiff");
+        el.innerHTML = "";
+        el.appendChild(createTable(list));
+    } else {
+        setElMessage("tdInfo",
+            "<i>No changes of depends in task's packages...</i>");
+        setVisible("tdInfo", true);
     }
 
-    let el = getElem("tableDiff");
-    el.innerHTML = "";
-    el.appendChild(createTable(list));
+    setVisible("taskDiff", true);
 }
 
 function showTaskInfo(response) {

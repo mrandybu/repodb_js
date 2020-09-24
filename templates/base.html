@@ -83,6 +83,22 @@
         <div id="infoBlock" hidden></div>
         <br>
 
+        <div id="taskDiff" hidden>
+            <i id="warn" class="fontColorWarning"></i>
+            <a data-toggle="collapse" href="#collapseDiff" role="button" aria-expanded="false"
+               aria-controls="collapseExample">
+                Show dependents changes
+            </a>
+            <div class="collapse" id="collapseDiff">
+                <p id="tdInfo" hidden></p>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tableDiff"></table>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
         <div class="table-responsive">
             <table class="table" id="taskContent" hidden></table>
         </div>
@@ -164,22 +180,6 @@
                         <p id="mcInfo" hidden></p>
                         <div class="table-responsive" id="misConfTableMain" hidden>
                             <table class="table" id="misConfTable"></table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-header" id="headingDiff">
-                    <h5 class="mb-0">
-                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseDiff"
-                                aria-expanded="false" aria-controls="collapseDiff">
-                            Diff between architectures
-                        </button>
-                    </h5>
-                </div>
-                <div id="collapseDiff" class="collapse" aria-labelledby="headingDiff" data-parent="#accordion">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table" id="tableDiff"></table>
                         </div>
                     </div>
                 </div>
